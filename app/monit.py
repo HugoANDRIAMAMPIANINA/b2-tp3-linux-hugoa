@@ -12,9 +12,8 @@ def conf_file_exists():
     return False
 
 def create_config_file():
-    open("/etc/monit/monit.conf", "w")
     conf_json = { "tcp_ports": [] }
-    with open("/etc/monit/monit.conf", "w") as conf_file:
+    with open("/etc/monit/monit.conf", "x") as conf_file:
         dump(conf_json, conf_file)
 
 def get_ram_informations():
