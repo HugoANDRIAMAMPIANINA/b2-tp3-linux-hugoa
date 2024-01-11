@@ -83,7 +83,7 @@ def check_tcp_ports():
     return ports_checking_report
 
 def get_id():
-    return uuid1().int
+    return uuid1()
 
 def get_datetime():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -134,26 +134,25 @@ def system_check_output(ram_usage, disk_usage, cpu_usage, tcp_ports_info):
     total_disk, free_disk, used_disk, percent_used_disk = disk_usage
     percent_used_cpu = cpu_usage 
     check_output = f"""
-    CHECK - {get_id()},
+CHECK - {get_id()},
+
+Date: {get_datetime()},
+
+RAM: 
+    Total RAM: {total_ram}
+    Available RAM: {available_ram}
+    Used RAM: {used_ram}
+    Free RAM: {free_ram}
+    Precent Used: {percent_used_ram} %
     
-    Date: {get_datetime()},
+Disk: 
+    Total Disk: {total_disk} GB
+    Free Disk: {free_disk} GB
+    Used Disk: {used_disk} GB
+    Percent Used: {percent_used_disk} %
     
-    RAM: 
-        Total RAM: {total_ram},
-        Available RAM: {available_ram},
-        Used RAM: {used_ram},
-        Free RAM: {free_ram},
-        Precent Used: {percent_used_ram}
-        
-    Disk: 
-        Total Disk: {total_disk},
-        Free Disk: {free_disk},
-        Used Disk: {used_disk},
-        Percent Used: {percent_used_disk}
-        
-    CPU:
-        Percent Used: {percent_used_cpu}\n
-    """
+CPU:
+    Percent Used: {percent_used_cpu} %\n"""
     if tcp_ports_info != {}:
         ports_output = ""
         for port, status in tcp_ports_info.items():
@@ -187,8 +186,9 @@ def main():
     if args.get_avg is not None:
         get_average_check_values()
         
-    parser.print_help()
-    exit(1)
+    if args.check is False and args.list is False and args.get_last is False and args.get_avg is None:
+        parser.print_help()
+        exit(1)
 
 if __name__ == "__main__":
     main()
