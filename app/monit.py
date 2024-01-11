@@ -28,7 +28,7 @@ def get_cpu_usage():
     return cpu_percent()
 
 def check_tcp_ports():
-    print(net_connections())
+    return 1111 in [i.laddr.port for i in net_connections()]
     
 
 def check_system():
