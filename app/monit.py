@@ -7,10 +7,10 @@ from os.path import isfile, exists
 from os import makedirs
 from uuid import uuid1
 from datetime import datetime
+from sys import exit
 
 
-def argument_management():
-    parser = ArgumentParser()
+def argument_management(parser):
     g = parser.add_mutually_exclusive_group()
     
     g.add_argument("-c", "--check", action="store_true", help="inspect RAM, CPU and Disk usage, check if TCP ports specified in config file (/etc/monit/monit.conf) are open and used, output the results and store these in a file located in /var/monit/")
@@ -156,7 +156,7 @@ def system_check_output(ram_usage, disk_usage, cpu_usage, tcp_ports_info):
     """
     if tcp_ports_info != {}:
         ports_output = ""
-        for port, status in tcp_ports_info:
+        for port, status in tcp_ports_info.items():
             ports_output += f"    {port}: {status}\n"
         check_output += f"TCP PORTS:\n{ports_output}"
     
@@ -172,7 +172,8 @@ def get_average_check_values():
     print("average_check_values")
 
 def main():
-    args = argument_management()
+    parser = ArgumentParser()
+    args = argument_management(parser)
     
     if not file_exists('/etc/monit/monit.conf'):
         create_file("/etc/monit/", "monit.conf", { "tcp_ports": [] })
@@ -185,6 +186,9 @@ def main():
         get_last_check()
     if args.get_avg is not None:
         get_average_check_values()
+        
+    parser.print_help()
+    exit(1)
 
 if __name__ == "__main__":
     main()
