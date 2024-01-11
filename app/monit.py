@@ -9,6 +9,17 @@ from uuid import uuid1
 from datetime import datetime
 
 
+def argument_management():
+    parser = ArgumentParser()
+    g = parser.add_mutually_exclusive_group()
+    
+    g.add_argument("-c", "--check", action="store_true", help="inspect RAM, CPU and Disk usage, check if TCP ports specified in config file (/etc/monit/monit.conf) are open and used, output the results and store these in a file located in /var/monit/")
+    g.add_argument("-l", "--list", action="store_true", help="output all the check files name and path")
+    g.add_argument("--get-last", action="store_true", help="output the last check file results")
+    g.add_argument("--get-avg", action="store", type=int, help="output average check values since the last X hours, X is the integer value given in argument")
+    
+    return parser.parse_args()
+
 def file_exists(file_path):
     if exists(file_path) and isfile(file_path):
         return True
@@ -77,11 +88,10 @@ def get_id():
 def get_datetime():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
-def create_report_file_json():
-    total_ram, available_ram, used_ram, free_ram, percent_used_ram = get_ram_informations()
-    total_disk, free_disk, used_disk, percent_used_disk = get_disk_usage()
-    percent_used_cpu = get_cpu_usage()
-    tcp_ports_info = check_tcp_ports()
+def create_report_file_json(ram_usage, disk_usage, cpu_usage, tcp_ports_info):
+    total_ram, available_ram, used_ram, free_ram, percent_used_ram = ram_usage
+    total_disk, free_disk, used_disk, percent_used_disk = disk_usage
+    percent_used_cpu = cpu_usage 
     report_json = {
         "id": get_id(),
         "date": get_datetime(),
@@ -107,28 +117,74 @@ def create_report_file_json():
         
     return report_json
 
-def check_system():
+def system_check():
+    ram_usage = get_ram_informations()
+    disk_usage = get_disk_usage()
+    cpu_usage = get_cpu_usage()
+    tcp_ports_info = check_tcp_ports()
+    
     report_file_name = f"monit_{datetime.now().strftime('%Y%m%d%H%M%S')}.json"
-    print(report_file_name)
-    create_file("/var/monit/",report_file_name, create_report_file_json())
+    json_report_file = create_report_file_json(ram_usage, disk_usage, cpu_usage, tcp_ports_info)
     
+    system_check_output(ram_usage, disk_usage, cpu_usage, tcp_ports_info)
+    create_file("/var/monit/",report_file_name, json_report_file)
+    
+def system_check_output(ram_usage, disk_usage, cpu_usage, tcp_ports_info):
+    total_ram, available_ram, used_ram, free_ram, percent_used_ram = ram_usage
+    total_disk, free_disk, used_disk, percent_used_disk = disk_usage
+    percent_used_cpu = cpu_usage 
+    check_output = f"""
+    CHECK - {get_id()},
+    
+    Date: {get_datetime()},
+    
+    RAM: 
+        Total RAM: {total_ram},
+        Available RAM: {available_ram},
+        Used RAM: {used_ram},
+        Free RAM: {free_ram},
+        Precent Used: {percent_used_ram}
+        
+    Disk: 
+        Total Disk: {total_disk},
+        Free Disk: {free_disk},
+        Used Disk: {used_disk},
+        Percent Used: {percent_used_disk}
+        
+    CPU:
+        Percent Used: {percent_used_cpu}\n
+    """
+    if tcp_ports_info != {}:
+        ports_output = ""
+        for port, status in tcp_ports_info:
+            ports_output += f"    {port}: {status}\n"
+        check_output += f"TCP PORTS:\n{ports_output}"
+    
+    print(check_output)
+    
+def list_checks():
+    print("list_checks")
+
+def get_last_check():
+    print("last_check")
+
+def get_average_check_values():
+    print("average_check_values")
+
 def main():
-    parser = ArgumentParser()
-    g = parser.add_mutually_exclusive_group()
-    
-    g.add_argument("-c", "--check", action="store_true")
-    g.add_argument("-l", "--list", action="store_true")
-    g.add_argument("--get-last", action="store_true")
-    g.add_argument("--get-avg", action="store")
-    
-    args = parser.parse_args()
-    print(args)
+    args = argument_management()
     
     if not file_exists('/etc/monit/monit.conf'):
         create_file("/etc/monit/", "monit.conf", { "tcp_ports": [] })
         
-    check_system()
-
+    if args.check is True:
+        system_check()
+    if args.list is True:
+        list_checks()
+    if args.get_last is True:
+        get_last_check()
+    if args.get_avg is not None:
+        get_average_check_values()
 
 if __name__ == "__main__":
     main()
