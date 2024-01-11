@@ -1,6 +1,20 @@
 from argparse import ArgumentParser
-from psutil import virtual_memory, disk_usage, cpu_percent, net_connections
+from psutil import virtual_memory, disk_usage, cpu_percent
+import socket
+from json import load, dump
+from os.path import isfile, exists
 
+
+def conf_file_exists():
+    conf_file_path = '/etc/monit/monit.conf'
+    if exists(conf_file_path) and isfile(conf_file_path):
+        return True
+    return False
+
+def create_config_file():
+    conf_json = { "tcp_ports": [] }
+    with open("/etc/monit/monit.conf", "w") as conf_file:
+        dump(conf_json, conf_file)
 
 def get_ram_informations():
     ram = virtual_memory()
@@ -27,8 +41,29 @@ def get_disk_usage():
 def get_cpu_usage():
     return cpu_percent()
 
+def is_port_open(port):
+   s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+   try:
+      s.connect(("127.0.0.1", int(port)))
+      s.shutdown(2)
+      s.close()
+      return True
+   except:
+      return False
+
 def check_tcp_ports():
-    return 5000 in [i.laddr.port for i in net_connections()]
+    with open('/etc/monit/monit.conf') as conf_file:
+        config = load(conf_file)
+    
+    ports = config["tcp_ports"]
+    print(ports)
+    
+    ports_checking_report = {}
+    for port in ports:
+        is_open = is_port_open(port)
+        ports_checking_report[str(port)] = is_open
+        
+    return ports_checking_report
     
 
 def check_system():
@@ -37,8 +72,6 @@ def check_system():
     # percent_used_cpu = get_cpu_usage()
     print(check_tcp_ports())
     
-
-
 def main():
     parser = ArgumentParser()
     g = parser.add_mutually_exclusive_group()
@@ -51,7 +84,11 @@ def main():
     args = parser.parse_args()
     print(args)
     
+    if not conf_file_exists():
+        create_config_file()
+        
     check_system()
+
 
 if __name__ == "__main__":
     main()
