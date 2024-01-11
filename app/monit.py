@@ -103,7 +103,7 @@ def create_report_file_json():
         }
     }
     if tcp_ports_info != {}:
-        report_json["tcp_ports": tcp_ports_info]
+        report_json["tcp_ports"] = tcp_ports_info
         
     return report_json
 
