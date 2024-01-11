@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 from psutil import virtual_memory, disk_usage, cpu_percent
 import socket
+from contextlib import closing
 from json import load, dump
 from os.path import isfile, exists
 from os import makedirs
@@ -48,14 +49,14 @@ def get_cpu_usage():
     return cpu_percent()
 
 def is_port_open(port):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    result = sock.connect_ex(('127.0.0.1', port))
-    if result == 0:
-        sock.close()
-        return True
-    else:
-        sock.close()
-        return False
+    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+        result = sock.connect_ex(('127.0.0.1', port))
+        if result == 0:
+            sock.close()
+            return True
+        else:
+            sock.close()
+            return False
 
 def check_tcp_ports():
     with open('/etc/monit/monit.conf') as conf_file:
