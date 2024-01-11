@@ -3,6 +3,7 @@ from psutil import virtual_memory, disk_usage, cpu_percent
 import socket
 from json import load, dump
 from os.path import isfile, exists
+from os import makedirs
 
 
 def conf_file_exists():
@@ -12,8 +13,13 @@ def conf_file_exists():
     return False
 
 def create_config_file():
+    directory = "/etc/monit"
+    
+    if not exists(directory):
+        makedirs(directory)
+    
     conf_json = { "tcp_ports": [] }
-    with open("/etc/monit/monit.conf", "x") as conf_file:
+    with open("/etc/monit/monit.conf", "w") as conf_file:
         dump(conf_json, conf_file)
 
 def get_ram_informations():
