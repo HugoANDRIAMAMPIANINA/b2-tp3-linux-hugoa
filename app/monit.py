@@ -35,10 +35,10 @@ def create_file(file_directory, file_name, json_data):
 def get_ram_informations():
     ram = virtual_memory()
     
-    total_ram = ram.total
-    available_ram = ram.available
-    used_ram = ram.used
-    free_ram = ram.free
+    total_ram = ram.total / 1000000000
+    available_ram = ram.available / 1000000000
+    used_ram = ram.used / 1000000000
+    free_ram = ram.free / 1000000000
     percent_used = ram.percent
     
     return total_ram, available_ram, used_ram, free_ram, percent_used
@@ -141,14 +141,14 @@ RAM:
     Available RAM: {available_ram}
     Used RAM: {used_ram}
     Free RAM: {free_ram}
-    Precent Used: {percent_used_ram} %\n 
+    Precent Used: {percent_used_ram}%\n 
 Disk: 
     Total Disk: {total_disk} GB
     Free Disk: {free_disk} GB
     Used Disk: {used_disk} GB
-    Percent Used: {percent_used_disk} %\n
+    Percent Used: {percent_used_disk}%\n
 CPU:
-    Percent Used: {percent_used_cpu} %\n\n"""
+    Percent Used: {percent_used_cpu}%\n\n"""
     if tcp_ports_info != {}:
         ports_output = ""
         for port, status in tcp_ports_info.items():
