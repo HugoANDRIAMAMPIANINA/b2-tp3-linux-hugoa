@@ -48,14 +48,14 @@ def get_cpu_usage():
     return cpu_percent()
 
 def is_port_open(port):
-   s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-   try:
-      s.connect(("127.0.0.1", int(port)))
-      s.shutdown(2)
-      s.close()
-      return True
-   except:
-      return False
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    result = sock.connect_ex(('127.0.0.1',80))
+    if result == 0:
+        sock.close()
+        return True
+    else:
+        sock.close()
+        return False
 
 def check_tcp_ports():
     with open('/etc/monit/monit.conf') as conf_file:
