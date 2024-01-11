@@ -108,9 +108,9 @@ def create_report_file_json():
     return report_json
 
 def check_system():
-    report_file_name = f"monit_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    report_file_name = f"monit_{datetime.now().strftime('%Y%m%d%H%M%S')}.json"
     print(report_file_name)
-    create_file("/var/monit",report_file_name, create_report_file_json())
+    create_file("/var/monit/",report_file_name, create_report_file_json())
     
 def main():
     parser = ArgumentParser()
