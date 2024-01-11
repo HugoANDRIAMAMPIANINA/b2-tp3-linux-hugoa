@@ -5,23 +5,21 @@ from contextlib import closing
 from json import load, dump
 from os.path import isfile, exists
 from os import makedirs
+from uuid import uuid1
+from datetime import datetime
 
 
-def conf_file_exists():
-    conf_file_path = '/etc/monit/monit.conf'
-    if exists(conf_file_path) and isfile(conf_file_path):
+def file_exists(file_path):
+    if exists(file_path) and isfile(file_path):
         return True
     return False
 
-def create_config_file():
-    directory = "/etc/monit"
+def create_file(file_directory, file_name, json_data):
+    if not exists(file_directory):
+        makedirs(file_directory)
     
-    if not exists(directory):
-        makedirs(directory)
-    
-    conf_json = { "tcp_ports": [] }
-    with open("/etc/monit/monit.conf", "w") as conf_file:
-        dump(conf_json, conf_file)
+    with open(f"{file_directory}{file_name}", "w") as conf_file:
+        dump(json_data, conf_file)
 
 def get_ram_informations():
     ram = virtual_memory()
@@ -50,6 +48,7 @@ def get_cpu_usage():
 
 def is_port_open(port):
     with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+        socket.setdefaulttimeout(2.0)
         result = sock.connect_ex(('127.0.0.1', port))
         if result == 0:
             sock.close()
@@ -71,13 +70,46 @@ def check_tcp_ports():
         ports_checking_report[str(port)] = is_open
         
     return ports_checking_report
+
+def get_id():
+    return uuid1().int
+
+def get_datetime():
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
+def create_report_file_json():
+    total_ram, available_ram, used_ram, free_ram, percent_used_ram = get_ram_informations()
+    total_disk, free_disk, used_disk, percent_used_disk = get_disk_usage()
+    percent_used_cpu = get_cpu_usage()
+    tcp_ports_info = check_tcp_ports()
+    report_json = {
+        "id": get_id(),
+        "date": get_datetime(),
+        "ram": {
+            "total_ram": total_ram,
+            "available_ram": available_ram,
+            "used_ram": used_ram,
+            "free_ram": free_ram,
+            "percent_used": percent_used_ram
+        },
+        "disk": {
+            "total_disk": total_disk,
+            "free_disk": free_disk,
+            "used_disk": used_disk,
+            "percent_used": percent_used_disk
+        },
+        "cpu": {
+            "percent_used": percent_used_cpu
+        }
+    }
+    if tcp_ports_info != {}:
+        report_json["tcp_ports": tcp_ports_info]
+        
+    return report_json
 
 def check_system():
-    # total_ram, available_ram, used_ram, free_ram, percent_used_ram = get_ram_informations()
-    # total_disk, free_disk, used_disk, percent_used_disk = get_disk_usage()
-    # percent_used_cpu = get_cpu_usage()
-    print(check_tcp_ports())
+    report_file_name = f"monit_{datetime.now().strftime("%Y%m%d%H%M%S")}"
+    create_file("/var/monit",report_file_name, create_report_file_json())
     
 def main():
     parser = ArgumentParser()
@@ -91,8 +123,8 @@ def main():
     args = parser.parse_args()
     print(args)
     
-    if not conf_file_exists():
-        create_config_file()
+    if not file_exists('/etc/monit/monit.conf'):
+        create_file("/etc/monit/", "monit.conf", { "tcp_ports": [] })
         
     check_system()
 
