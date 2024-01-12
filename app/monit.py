@@ -92,23 +92,23 @@ def create_report_file_json(ram_usage, disk_usage, cpu_usage, tcp_ports_info):
     total_disk, free_disk, used_disk, percent_used_disk = disk_usage
     percent_used_cpu = cpu_usage 
     report_json = {
-        "id": get_id(),
-        "date": get_datetime(),
+        "id":get_id(),
+        "date":get_datetime(),
         "ram": {
-            "total_ram": total_ram,
-            "available_ram": available_ram,
-            "used_ram": used_ram,
-            "free_ram": free_ram,
-            "percent_used": percent_used_ram
+            "total_ram":total_ram,
+            "available_ram":available_ram,
+            "used_ram":used_ram,
+            "free_ram":free_ram,
+            "percent_used":percent_used_ram
         },
         "disk": {
-            "total_disk": total_disk,
-            "free_disk": free_disk,
-            "used_disk": used_disk,
-            "percent_used": percent_used_disk
+            "total_disk":total_disk,
+            "free_disk":free_disk,
+            "used_disk":used_disk,
+            "percent_used":percent_used_disk
         },
         "cpu": {
-            "percent_used": percent_used_cpu
+            "percent_used":percent_used_cpu
         }
     }
     if tcp_ports_info != {}:
