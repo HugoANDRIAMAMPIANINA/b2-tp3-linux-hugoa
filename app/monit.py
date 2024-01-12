@@ -4,7 +4,7 @@ import socket
 from contextlib import closing
 from json import load, dump
 from os.path import isfile, exists
-from os import makedirs
+from os import makedirs, listdir
 from uuid import uuid1
 from datetime import datetime
 from sys import exit
@@ -35,10 +35,10 @@ def create_file(file_directory, file_name, json_data):
 def get_ram_informations():
     ram = virtual_memory()
     
-    total_ram = round(ram.total / 1024 / 1024 / 1024, 2)
-    available_ram = round(ram.available / 1024 / 1024 / 1024, 2)
-    used_ram = round(ram.used / 1024 / 1024 / 1024, 2)
-    free_ram = round(ram.free / 1024 / 1024 / 1024, 2)
+    total_ram = round(ram.total / 1000000000, 2)
+    available_ram = round(ram.available / 1000000000, 2)
+    used_ram = round(ram.used / 1000000000, 2)
+    free_ram = round(ram.free / 1000000000, 2)
     percent_used = ram.percent
     
     return total_ram, available_ram, used_ram, free_ram, percent_used
@@ -157,7 +157,15 @@ CPU:
     print(check_output)
     
 def list_checks():
-    print("list_checks")
+    check_files = [f for f in listdir() if isfile(f)]
+    if not check_files:
+        print("No check file found")
+        exit(0)
+    check_files_output = "All check files made :\n\n"
+    for file in check_files:
+        check_files_output += f"  - {file}\n"
+    print(check_files_output)
+    exit(0)
 
 def get_last_check():
     print("last_check")
