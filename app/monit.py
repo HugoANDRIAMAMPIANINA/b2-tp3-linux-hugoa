@@ -35,10 +35,10 @@ def create_file(file_directory, file_name, json_data):
 def get_ram_informations():
     ram = virtual_memory()
     
-    total_ram = ram.total / 1000000000
-    available_ram = ram.available / 1000000000
-    used_ram = ram.used / 1000000000
-    free_ram = ram.free / 1000000000
+    total_ram = round(ram.total / 1000000000, 2)
+    available_ram = round(ram.available / 1000000000, 2)
+    used_ram = round(ram.used / 1000000000, 2)
+    free_ram = round(ram.free / 1000000000, 2)
     percent_used = ram.percent
     
     return total_ram, available_ram, used_ram, free_ram, percent_used
@@ -47,9 +47,9 @@ def get_disk_usage():
     # try catch maybe ?
     disk = disk_usage('/')
     
-    total_disk = disk.total / 1024 / 1024 / 1024
-    free_disk = disk.free / 1024 / 1024 / 1024
-    used_disk = disk.used / 1024 / 1024 / 1024
+    total_disk = round(disk.total / 1024 / 1024 / 1024, 2)
+    free_disk = round(disk.free / 1024 / 1024 / 1024, 2)
+    used_disk = round(disk.used / 1024 / 1024 / 1024, 2)
     percent_used = disk.percent
     
     return total_disk, free_disk, used_disk, percent_used
@@ -73,7 +73,6 @@ def check_tcp_ports():
         config = load(conf_file)
     
     ports = config["tcp_ports"]
-    print(ports)
     
     ports_checking_report = {}
     for port in ports:
@@ -137,10 +136,10 @@ def system_check_output(ram_usage, disk_usage, cpu_usage, tcp_ports_info):
 CHECK - {get_id()}\n
 Date: {get_datetime()}\n
 RAM: 
-    Total RAM: {total_ram}
-    Available RAM: {available_ram}
-    Used RAM: {used_ram}
-    Free RAM: {free_ram}
+    Total RAM: {total_ram} GB
+    Available RAM: {available_ram} GB
+    Used RAM: {used_ram} GB
+    Free RAM: {free_ram} GB
     Precent Used: {percent_used_ram}%\n 
 Disk: 
     Total Disk: {total_disk} GB
