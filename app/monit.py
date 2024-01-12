@@ -80,37 +80,12 @@ def check_tcp_ports():
         ports_checking_report[str(port)] = is_open
         
     return ports_checking_report
-
-def get_id():
-    return uuid1().hex
-
-def get_datetime():
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
-def create_report_file_json(ram_usage, disk_usage, cpu_usage, tcp_ports_info):
+def create_report_file_json(check_id, check_date, ram_usage, disk_usage, cpu_usage, tcp_ports_info):
     total_ram, available_ram, used_ram, free_ram, percent_used_ram = ram_usage
     total_disk, free_disk, used_disk, percent_used_disk = disk_usage
     percent_used_cpu = cpu_usage 
-    report_json = {
-        "id":get_id(),
-        "date":get_datetime(),
-        "ram": {
-            "total_ram":total_ram,
-            "available_ram":available_ram,
-            "used_ram":used_ram,
-            "free_ram":free_ram,
-            "percent_used":percent_used_ram
-        },
-        "disk": {
-            "total_disk":total_disk,
-            "free_disk":free_disk,
-            "used_disk":used_disk,
-            "percent_used":percent_used_disk
-        },
-        "cpu": {
-            "percent_used":percent_used_cpu
-        }
-    }
+    report_json = {"id":check_id,"date":check_date,"ram":{"total_ram":total_ram,"available_ram":available_ram,"used_ram":used_ram,"free_ram":free_ram,"percent_used":percent_used_ram},"disk":{"total_disk":total_disk,"free_disk":free_disk,"used_disk":used_disk,"percent_used":percent_used_disk},"cpu":{"percent_used":percent_used_cpu}}
     if tcp_ports_info != {}:
         report_json["tcp_ports"] = tcp_ports_info
         
@@ -121,20 +96,21 @@ def system_check():
     disk_usage = get_disk_usage()
     cpu_usage = get_cpu_usage()
     tcp_ports_info = check_tcp_ports()
+    check_id, check_date, = uuid1().hex, datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
     report_file_name = f"monit_{datetime.now().strftime('%Y%m%d%H%M%S')}.json"
-    json_report_file = create_report_file_json(ram_usage, disk_usage, cpu_usage, tcp_ports_info)
+    json_report_file = create_report_file_json(check_id, check_date, ram_usage, disk_usage, cpu_usage, tcp_ports_info)
     
-    system_check_output(ram_usage, disk_usage, cpu_usage, tcp_ports_info)
+    system_check_output(check_id, check_date, ram_usage, disk_usage, cpu_usage, tcp_ports_info)
     create_file("/var/monit/",report_file_name, json_report_file)
     
-def system_check_output(ram_usage, disk_usage, cpu_usage, tcp_ports_info):
+def system_check_output(check_id, check_date, ram_usage, disk_usage, cpu_usage, tcp_ports_info):
     total_ram, available_ram, used_ram, free_ram, percent_used_ram = ram_usage
     total_disk, free_disk, used_disk, percent_used_disk = disk_usage
     percent_used_cpu = cpu_usage 
     check_output = f"""
-CHECK - {get_id()}\n
-Date: {get_datetime()}\n
+CHECK - {check_id}\n
+Date: {check_date}\n
 RAM: 
     Total RAM: {total_ram} GB
     Available RAM: {available_ram} GB
@@ -156,6 +132,15 @@ CPU:
     
     print(check_output)
     
+def read_json_file(file_path):
+    json_data = load(file_path)
+    check_id, check_date, ram_usage, disk_usage, cpu_usage = json_data["id"], json_data["date"], list(json_data["ram"].values), list(json_data["disk"].values), json_data["cpu"]["percent_used"]
+    tcp_ports_info = {}
+    if "tcp_ports" in json_data:
+        tcp_ports_info = json_data["tcp_ports"]
+        
+    return check_id, check_date, ram_usage, disk_usage, cpu_usage, tcp_ports_info
+    
 def list_checks():
     check_files = [f for f in listdir("/var/monit/") if isfile("/var/monit/"+f)]
     if not check_files:
@@ -168,11 +153,20 @@ def list_checks():
     exit(0)
 
 def get_last_check():
-    print("last_check")
+    check_directory = "/var/monit/"
+    check_files = [f for f in listdir(check_directory) if isfile(check_directory+f)]
+    if not check_files:
+        print("No check file found, please make a check to get the last check values")
+        exit(1)
+    last_check_file = check_files[-1]
+    last_check_file_path = check_directory + last_check_file
+    system_check_output(read_json_file(last_check_file_path))
+    exit(0)
+    
 
 def get_average_check_values():
     print("average_check_values")
-
+    
 def main():
     parser = ArgumentParser()
     args = argument_management(parser)
