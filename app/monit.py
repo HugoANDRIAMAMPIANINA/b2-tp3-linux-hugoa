@@ -158,9 +158,10 @@ def get_last_check():
     if not check_files:
         print("No check file found, please make a check to get the last check values")
         exit(1)
-    last_check_file = check_files[-1]
-    last_check_file_path = check_directory + last_check_file
-    system_check_output(read_json_file(last_check_file_path))
+    last_check_file_name = check_files[-1]
+    last_check_file_path = check_directory + last_check_file_name
+    last_check_file = open(last_check_file_path)
+    system_check_output(read_json_file(last_check_file))
     exit(0)
     
 
