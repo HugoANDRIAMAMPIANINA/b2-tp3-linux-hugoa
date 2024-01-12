@@ -35,10 +35,10 @@ def create_file(file_directory, file_name, json_data):
 def get_ram_informations():
     ram = virtual_memory()
     
-    total_ram = round(ram.total / 1000000000, 2)
-    available_ram = round(ram.available / 1000000000, 2)
-    used_ram = round(ram.used / 1000000000, 2)
-    free_ram = round(ram.free / 1000000000, 2)
+    total_ram = round(ram.total / 1024 / 1024 / 1024, 2)
+    available_ram = round(ram.available / 1024 / 1024 / 1024, 2)
+    used_ram = round(ram.used / 1024 / 1024 / 1024, 2)
+    free_ram = round(ram.free / 1024 / 1024 / 1024, 2)
     percent_used = ram.percent
     
     return total_ram, available_ram, used_ram, free_ram, percent_used
