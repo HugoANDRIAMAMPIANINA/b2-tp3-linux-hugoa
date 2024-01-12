@@ -158,13 +158,12 @@ CPU:
     
 def list_checks():
     check_files = [f for f in listdir("/var/monit/") if isfile("/var/monit/"+f)]
-    print(check_files)
     if not check_files:
         print("No check file found")
         exit(0)
     check_files_output = "All check files made :\n\n"
     for file in check_files:
-        check_files_output += f"  - {file}\n"
+        check_files_output += f"  - {file} (located in /var/monit/{file})\n"
     print(check_files_output)
     exit(0)
 
