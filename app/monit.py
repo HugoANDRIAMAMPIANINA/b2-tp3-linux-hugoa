@@ -134,7 +134,7 @@ CPU:
     
 def read_json_file(file_path):
     json_data = load(file_path)
-    check_id, check_date, ram_usage, disk_usage, cpu_usage = json_data["id"], json_data["date"], list(json_data["ram"].values), list(json_data["disk"].values), json_data["cpu"]["percent_used"]
+    check_id, check_date, ram_usage, disk_usage, cpu_usage = json_data["id"], json_data["date"], list(json_data["ram"].values()), list(json_data["disk"].values()), json_data["cpu"]["percent_used"]
     tcp_ports_info = {}
     if "tcp_ports" in json_data:
         tcp_ports_info = json_data["tcp_ports"]
