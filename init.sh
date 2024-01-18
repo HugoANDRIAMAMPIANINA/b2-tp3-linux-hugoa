@@ -38,7 +38,7 @@ chown "$USERNAME:$USERNAME" /home/monit-man/monit.py
 chmod 766 /home/monit-man/monit.py
 
 cp service/monit.service /etc/systemd/system/monit.service
-cp service/monit.target /etc/systemd/system/monit.target
+cp service/monit.timer /etc/systemd/system/monit.timer
 
 systemctl daemon-reload
 systemctl start monit.timer
