@@ -8,6 +8,7 @@ from os import makedirs, listdir
 from uuid import uuid1
 from datetime import datetime, timedelta
 from sys import exit
+import logging
 
 
 def argument_management(parser):
@@ -19,6 +20,23 @@ def argument_management(parser):
     g.add_argument("--get-avg", action="store", type=int, help="output average check values since the last X hours, X is the integer value given in argument")
     
     return parser.parse_args()
+
+
+def get_logger():
+    logger = logging.getLogger("logger")
+    logger.setLevel(logging.INFO)
+    
+    log_file_path = '/var/log/monit/monit.log'
+    file_handler = logging.FileHandler(log_file_path)
+    file_handler.setFormatter('%(asctime)s %(levelname)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+
+    logger.addHandler(file_handler)
+    return logger
+
+
+def write_log_message(message):
+    logger = get_logger()
+    logger.info(message)
 
 
 def file_exists(file_path):
@@ -112,6 +130,8 @@ def system_check():
     
     system_check_output(check_id, check_date, ram_usage, disk_usage, cpu_usage, tcp_ports_info)
     create_file("/var/monit/",report_file_name, json_report_file)
+    write_log_message(f"monit.py --check success (new check file located in /var/monit/{report_file_name})")
+    exit(0)
     
     
 def system_check_output(check_id, check_date, ram_usage, disk_usage, cpu_usage, tcp_ports_info):
@@ -166,6 +186,8 @@ def list_checks():
     for file in check_files:
         check_files_output += f"  - {file} (located in /var/monit/{file})\n"
     print(check_files_output)
+    
+    write_log_message(f"monit.py --list success")
     exit(0)
     
 
@@ -183,6 +205,7 @@ def get_last_check():
     
     check_id, check_date, ram_usage, disk_usage, cpu_usage, tcp_ports_info = read_json_file(last_check_file)
     system_check_output(check_id, check_date, ram_usage, disk_usage, cpu_usage, tcp_ports_info)
+    write_log_message(f"monit.py --get-last success")
     exit(0)
     
     
@@ -264,6 +287,7 @@ def get_average_check_values(hours):
     last_hours_check_values = get_files_values(check_files_from_last_hours)
     average_check_values = compute_values_average(last_hours_check_values)
     average_check_output(average_check_values)
+    write_log_message(f"monit.py --get-avg {hours} success")
     exit(0)
     
     
