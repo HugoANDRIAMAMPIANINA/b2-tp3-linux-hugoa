@@ -201,6 +201,7 @@ Disk:
     Percent Used: {average_values["disk"][3]}%\n
 CPU:
     Percent Used: {average_values["cpu"]}%"""
+    print(check_output)
     
     
 def compute_average(values):
