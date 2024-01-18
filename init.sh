@@ -6,6 +6,8 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+pip install psutil
+
 USERNAME="monit-man"
 
 useradd -m --disable-login -s /bin/bash "$USERNAME"
