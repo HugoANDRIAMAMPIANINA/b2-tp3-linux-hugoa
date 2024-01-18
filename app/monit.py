@@ -189,18 +189,18 @@ def get_last_check():
 def average_check_output(average_values):
     check_output = f"""
 RAM: 
-    Total RAM: {average_values[0]} GB
-    Available RAM: {average_values[1]} GB
-    Used RAM: {average_values[2]} GB
-    Free RAM: {average_values[3]} GB
-    Precent Used: {average_values[4]}%\n 
+    Total RAM: {average_values["ram"][0]} GB
+    Available RAM: {average_values["ram"][1]} GB
+    Used RAM: {average_values["ram"][2]} GB
+    Free RAM: {average_values["ram"][3]} GB
+    Precent Used: {average_values["ram"][4]}%\n 
 Disk: 
-    Total Disk: {average_values[5]} GB
-    Free Disk: {average_values[6]} GB
-    Used Disk: {average_values[7]} GB
-    Percent Used: {average_values[8]}%\n
+    Total Disk: {average_values["disk"][0]} GB
+    Free Disk: {average_values["disk"][1]} GB
+    Used Disk: {average_values["disk"][2]} GB
+    Percent Used: {average_values["disk"][3]}%\n
 CPU:
-    Percent Used: {average_values[9]}%"""
+    Percent Used: {average_values["cpu"]}%"""
     
     
 def compute_average(values):
@@ -213,8 +213,7 @@ def compute_values_average(last_hours_check_values):
         average_values["ram"].append(compute_average(ram_info))
     for disk_info in last_hours_check_values["disk"].values():
         average_values["disk"].append(compute_average(disk_info))
-    for cpu_percent in last_hours_check_values["cpu"]:
-        average_values["cpu"] = compute_average(cpu_percent)
+    average_values["cpu"] = compute_average(last_hours_check_values["cpu"])
     return average_values
 
 
