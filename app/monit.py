@@ -239,18 +239,23 @@ def get_files_values(files):
 def get_files_from_last_hours(hours):
     check_directory = "/var/monit/"
     check_files = get_directory_files(check_directory)
+    if len(check_files) == 0:
+        print("No check file found, please make ")
+        exit(1)
     check_files.reverse()
     
     last_datetime = datetime.now() - timedelta(hours=hours)
     last_datetime = last_datetime.strftime('%Y%m%d%H%M%S')
     
     check_files_from_last_hours = []
-    
     for file_name in check_files:
         file_date = file_name[6:20]
         if int(file_date) >= int(last_datetime):
             check_files_from_last_hours.append(file_name)
-    
+            
+    if len(check_files_from_last_hours) == 0:
+        print(f"No check file found in the last {hours} hours")
+        exit(1)
     return check_files_from_last_hours
     
 
