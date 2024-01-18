@@ -1,0 +1,11 @@
+[Unit]
+Description=Monitoring tool
+After=network.target
+
+[Service]
+Type=oneshot
+User=monit-man
+ExecStart=python /home/monit-man/monit.py
+
+[Install]
+WantedBy=multi-user.target

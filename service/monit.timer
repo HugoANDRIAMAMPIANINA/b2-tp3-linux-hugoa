@@ -1,0 +1,10 @@
+[Unit]
+Description=Monitoring tool
+
+[Timer]
+OnBootSec=10s
+OnCalendar=*:0/10
+Persistent=yes
+
+[Install]
+WantedBy=timers.target

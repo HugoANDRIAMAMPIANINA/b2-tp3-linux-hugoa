@@ -66,7 +66,6 @@ def get_ram_informations():
 
 
 def get_disk_usage():
-    # try catch maybe ?
     disk = disk_usage('/')
     
     total_disk = round(disk.total / 1024 / 1024 / 1024, 2)
