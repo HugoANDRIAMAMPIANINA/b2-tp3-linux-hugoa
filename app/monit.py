@@ -6,7 +6,7 @@ from json import load, dump
 from os.path import isfile, exists
 from os import makedirs, listdir
 from uuid import uuid1
-from datetime import datetime
+from datetime import datetime, timedelta
 from sys import exit
 
 
@@ -20,10 +20,12 @@ def argument_management(parser):
     
     return parser.parse_args()
 
+
 def file_exists(file_path):
     if exists(file_path) and isfile(file_path):
         return True
     return False
+
 
 def create_file(file_directory, file_name, json_data):
     if not exists(file_directory):
@@ -31,6 +33,7 @@ def create_file(file_directory, file_name, json_data):
     
     with open(f"{file_directory}{file_name}", "w") as conf_file:
         dump(json_data, conf_file)
+
 
 def get_ram_informations():
     ram = virtual_memory()
@@ -43,6 +46,7 @@ def get_ram_informations():
     
     return total_ram, available_ram, used_ram, free_ram, percent_used
 
+
 def get_disk_usage():
     # try catch maybe ?
     disk = disk_usage('/')
@@ -54,8 +58,10 @@ def get_disk_usage():
     
     return total_disk, free_disk, used_disk, percent_used
 
+
 def get_cpu_usage():
     return cpu_percent()
+
 
 def is_port_open(port):
     with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
@@ -67,6 +73,7 @@ def is_port_open(port):
         else:
             sock.close()
             return False
+        
 
 def check_tcp_ports():
     with open('/etc/monit/monit.conf') as conf_file:
@@ -80,6 +87,7 @@ def check_tcp_ports():
         ports_checking_report[str(port)] = is_open
         
     return ports_checking_report
+
     
 def create_report_file_json(check_id, check_date, ram_usage, disk_usage, cpu_usage, tcp_ports_info):
     total_ram, available_ram, used_ram, free_ram, percent_used_ram = ram_usage
@@ -90,6 +98,7 @@ def create_report_file_json(check_id, check_date, ram_usage, disk_usage, cpu_usa
         report_json["tcp_ports"] = tcp_ports_info
         
     return report_json
+
 
 def system_check():
     ram_usage = get_ram_informations()
@@ -103,6 +112,7 @@ def system_check():
     
     system_check_output(check_id, check_date, ram_usage, disk_usage, cpu_usage, tcp_ports_info)
     create_file("/var/monit/",report_file_name, json_report_file)
+    
     
 def system_check_output(check_id, check_date, ram_usage, disk_usage, cpu_usage, tcp_ports_info):
     total_ram, available_ram, used_ram, free_ram, percent_used_ram = ram_usage
@@ -132,6 +142,7 @@ CPU:
     
     print(check_output)
     
+    
 def read_json_file(file_path):
     json_data = load(file_path)
     check_id, check_date, ram_usage, disk_usage, cpu_usage = json_data["id"], json_data["date"], list(json_data["ram"].values()), list(json_data["disk"].values()), json_data["cpu"]["percent_used"]
@@ -140,9 +151,14 @@ def read_json_file(file_path):
         tcp_ports_info = json_data["tcp_ports"]
         
     return check_id, check_date, ram_usage, disk_usage, cpu_usage, tcp_ports_info
+
+
+def get_directory_files(directory):
+    return [f for f in listdir(directory) if isfile(directory+f)]
     
+
 def list_checks():
-    check_files = [f for f in listdir("/var/monit/") if isfile("/var/monit/"+f)]
+    check_files = get_directory_files("/var/monit/")
     if not check_files:
         print("No check file found")
         exit(0)
@@ -151,10 +167,11 @@ def list_checks():
         check_files_output += f"  - {file} (located in /var/monit/{file})\n"
     print(check_files_output)
     exit(0)
+    
 
 def get_last_check():
     check_directory = "/var/monit/"
-    check_files = [f for f in listdir(check_directory) if isfile(check_directory+f)]
+    check_files = get_directory_files(check_directory)
     
     if not check_files:
         print("No check file found, please make a check to get the last check values")
@@ -168,9 +185,82 @@ def get_last_check():
     system_check_output(check_id, check_date, ram_usage, disk_usage, cpu_usage, tcp_ports_info)
     exit(0)
     
+    
+def average_check_output(average_values):
+    check_output = f"""
+RAM: 
+    Total RAM: {average_values[0]} GB
+    Available RAM: {average_values[1]} GB
+    Used RAM: {average_values[2]} GB
+    Free RAM: {average_values[3]} GB
+    Precent Used: {average_values[4]}%\n 
+Disk: 
+    Total Disk: {average_values[5]} GB
+    Free Disk: {average_values[6]} GB
+    Used Disk: {average_values[7]} GB
+    Percent Used: {average_values[8]}%\n
+CPU:
+    Percent Used: {average_values[9]}%"""
+    
+    
+def compute_average(values):
+    return float(sum(values)) / len(values)
+    
+    
+def compute_values_average(last_hours_check_values):
+    average_values = { "ram": [], "disk": [], "cpu": 0 }
+    for ram_info in last_hours_check_values["ram"].values():
+        average_values["ram"].append(compute_average(ram_info))
+    for disk_info in last_hours_check_values["disk"].values():
+        average_values["disk"].append(compute_average(disk_info))
+    for cpu_percent in last_hours_check_values["cpu"]:
+        average_values["cpu"] = compute_average(cpu_percent)
+    return average_values
 
-def get_average_check_values():
-    print("average_check_values")
+
+def get_files_values(files):
+    check_values = { "ram":{"total_ram":[],"available_ram":[],"used_ram":[],"free_ram":[],"percent_used":[]},"disk":{"total_disk":[],"free_disk":[],"used_disk":[],"percent_used":[]},"cpu":[] }
+    for file in files:
+        json_file_values = read_json_file(open(f"/var/monit/{file}"))
+        ram_usage, disk_usage, cpu_usage = json_file_values[2], json_file_values[3], json_file_values[4]
+        check_values["ram"]["total_ram"].append(ram_usage[0])
+        check_values["ram"]["available_ram"].append(ram_usage[1])
+        check_values["ram"]["used_ram"].append(ram_usage[2])
+        check_values["ram"]["free_ram"].append(ram_usage[3])
+        check_values["ram"]["percent_used"].append(ram_usage[4])
+        check_values["disk"]["total_disk"].append(disk_usage[0])
+        check_values["disk"]["free_disk"].append(disk_usage[1])
+        check_values["disk"]["used_disk"].append(disk_usage[2])
+        check_values["disk"]["percent_used"].append(disk_usage[3])
+        check_values["cpu"].append(cpu_usage)
+    return check_values
+        
+
+def get_files_from_last_hours(hours):
+    check_directory = "/var/monit/"
+    check_files = get_directory_files(check_directory)
+    check_files.reverse()
+    
+    last_datetime = datetime.now() - timedelta(hours=hours)
+    last_datetime = last_datetime.strftime('%Y%m%d%H%M%S')
+    
+    check_files_from_last_hours = []
+    
+    for file_name in check_files:
+        file_date = file_name[6:20]
+        if int(file_date) >= int(last_datetime):
+            check_files_from_last_hours.append(file_name)
+    
+    return check_files_from_last_hours
+    
+
+def get_average_check_values(hours):
+    check_files_from_last_hours = get_files_from_last_hours(hours)
+    last_hours_check_values = get_files_values(check_files_from_last_hours)
+    average_check_values = compute_values_average(last_hours_check_values)
+    average_check_output(average_check_values)
+    exit(0)
+    
     
 def main():
     parser = ArgumentParser()
@@ -186,7 +276,7 @@ def main():
     if args.get_last is True:
         get_last_check()
     if args.get_avg is not None:
-        get_average_check_values()
+        get_average_check_values(args.get_avg)
         
     if args.check is False and args.list is False and args.get_last is False and args.get_avg is None:
         parser.print_help()
