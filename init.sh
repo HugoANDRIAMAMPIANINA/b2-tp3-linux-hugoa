@@ -10,7 +10,7 @@ pip install psutil
 
 USERNAME="monit-man"
 
-useradd -m --disable-login -s /bin/bash "$USERNAME"
+useradd -m -s /bin/bash "$USERNAME"
 
 mkdir /etc/monit/
 chown "$USERNAME:$USERNAME" /etc/monit/
