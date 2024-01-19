@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Type=oneshot
 User=monit-man
-ExecStart=python /usr/local/bin/monit.py --check
+ExecStart=monit.py --check
 
 [Install]
 WantedBy=multi-user.target
