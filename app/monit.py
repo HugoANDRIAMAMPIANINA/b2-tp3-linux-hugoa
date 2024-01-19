@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from argparse import ArgumentParser
 from psutil import virtual_memory, disk_usage, cpu_percent
 import socket
@@ -50,7 +52,7 @@ def create_file(file_directory, file_name, json_data):
         makedirs(file_directory)
     
     with open(f"{file_directory}{file_name}", "w") as conf_file:
-        dump(json_data, conf_file)
+        dump(json_data, conf_file, separators=(',', ':'))
 
 
 def get_ram_informations():
