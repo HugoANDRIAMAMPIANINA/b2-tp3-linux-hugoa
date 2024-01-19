@@ -33,9 +33,9 @@ cp conf/monit.conf /etc/monit/monit.conf
 chown "$USERNAME:$USERNAME" /etc/monit/monit.conf
 chmod 600 /etc/monit/monit.conf
 
-cp app/monit.py /usr/local/bin/monit.py
-chown "$USERNAME:$USERNAME" /usr/local/bin/monit.py
-chmod 700 /usr/local/bin/monit.py
+cp app/monit.py /usr/bin/monit.py
+chown "$USERNAME:$USERNAME" /usr/bin/monit.py
+chmod 700 /usr/bin/monit.py
 
 cp service/monit.service /etc/systemd/system/monit.service
 cp service/monit.timer /etc/systemd/system/monit.timer
