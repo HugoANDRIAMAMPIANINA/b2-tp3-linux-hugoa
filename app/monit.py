@@ -1,122 +1,18 @@
 #!/usr/bin/env python
 
+from arguments import argument_management
+from logs import write_log_message
+from file_handler import create_file, file_exists, get_directory_files
+from system_info_collector import get_ram_informations, get_cpu_usage, get_disk_usage, check_tcp_ports
+from average import compute_values_average
+from json_handler import create_report_file_json, read_json_file
+from check_output import system_check_output, average_check_output
+from file_info_collector import get_files_values, get_files_from_last_hours
+
 from argparse import ArgumentParser
-from psutil import virtual_memory, disk_usage, cpu_percent
-import socket
-from contextlib import closing
-from json import load, dump
-from os.path import isfile, exists
-from os import makedirs, listdir
 from uuid import uuid1
-from datetime import datetime, timedelta
+from datetime import datetime
 from sys import exit
-import logging
-
-
-def argument_management(parser):
-    g = parser.add_mutually_exclusive_group()
-    
-    g.add_argument("-c", "--check", action="store_true", help="inspect RAM, CPU and Disk usage, check if TCP ports specified in config file (/etc/monit/monit.conf) are open and used, output the results and store these in a file located in /var/monit/")
-    g.add_argument("-l", "--list", action="store_true", help="output all the check files name and path")
-    g.add_argument("--get-last", action="store_true", help="output the last check file results")
-    g.add_argument("--get-avg", action="store", type=int, help="output average check values since the last X hours, X is the integer value given in argument")
-    
-    return parser.parse_args()
-
-
-def get_logger():
-    logger = logging.getLogger("logger")
-    logger.setLevel(logging.INFO)
-    
-    log_file_path = '/var/log/monit/monit.log'
-    file_handler = logging.FileHandler(log_file_path)
-    file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S'))
-
-    logger.addHandler(file_handler)
-    return logger
-
-
-def write_log_message(message):
-    logger = get_logger()
-    logger.info(message)
-
-
-def file_exists(file_path):
-    if exists(file_path) and isfile(file_path):
-        return True
-    return False
-
-
-def create_file(file_directory, file_name, json_data):
-    if not exists(file_directory):
-        makedirs(file_directory)
-    
-    with open(f"{file_directory}{file_name}", "w") as conf_file:
-        dump(json_data, conf_file, separators=(',', ':'))
-
-
-def get_ram_informations():
-    ram = virtual_memory()
-    
-    total_ram = round(ram.total / 1000000000, 2)
-    available_ram = round(ram.available / 1000000000, 2)
-    used_ram = round(ram.used / 1000000000, 2)
-    free_ram = round(ram.free / 1000000000, 2)
-    percent_used = ram.percent
-    
-    return total_ram, available_ram, used_ram, free_ram, percent_used
-
-
-def get_disk_usage():
-    disk = disk_usage('/')
-    
-    total_disk = round(disk.total / 1024 / 1024 / 1024, 2)
-    free_disk = round(disk.free / 1024 / 1024 / 1024, 2)
-    used_disk = round(disk.used / 1024 / 1024 / 1024, 2)
-    percent_used = disk.percent
-    
-    return total_disk, free_disk, used_disk, percent_used
-
-
-def get_cpu_usage():
-    return cpu_percent()
-
-
-def is_port_open(port):
-    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
-        socket.setdefaulttimeout(2.0)
-        result = sock.connect_ex(('127.0.0.1', port))
-        if result == 0:
-            sock.close()
-            return True
-        else:
-            sock.close()
-            return False
-        
-
-def check_tcp_ports():
-    with open('/etc/monit/monit.conf') as conf_file:
-        config = load(conf_file)
-    
-    ports = config["tcp_ports"]
-    
-    ports_checking_report = {}
-    for port in ports:
-        is_open = is_port_open(port)
-        ports_checking_report[str(port)] = is_open
-        
-    return ports_checking_report
-
-    
-def create_report_file_json(check_id, check_date, ram_usage, disk_usage, cpu_usage, tcp_ports_info):
-    total_ram, available_ram, used_ram, free_ram, percent_used_ram = ram_usage
-    total_disk, free_disk, used_disk, percent_used_disk = disk_usage
-    percent_used_cpu = cpu_usage 
-    report_json = {"id":check_id,"date":check_date,"ram":{"total_ram":total_ram,"available_ram":available_ram,"used_ram":used_ram,"free_ram":free_ram,"percent_used":percent_used_ram},"disk":{"total_disk":total_disk,"free_disk":free_disk,"used_disk":used_disk,"percent_used":percent_used_disk},"cpu":{"percent_used":percent_used_cpu}}
-    if tcp_ports_info != {}:
-        report_json["tcp_ports"] = tcp_ports_info
-        
-    return report_json
 
 
 def system_check():
@@ -133,49 +29,6 @@ def system_check():
     create_file("/var/monit/",report_file_name, json_report_file)
     write_log_message(f"monit.py --check success (new check file located in /var/monit/{report_file_name})")
     exit(0)
-    
-    
-def system_check_output(check_id, check_date, ram_usage, disk_usage, cpu_usage, tcp_ports_info):
-    total_ram, available_ram, used_ram, free_ram, percent_used_ram = ram_usage
-    total_disk, free_disk, used_disk, percent_used_disk = disk_usage
-    percent_used_cpu = cpu_usage 
-    check_output = f"""
-CHECK - {check_id}\n
-Date: {check_date}\n
-RAM: 
-    Total RAM: {total_ram} GB
-    Available RAM: {available_ram} GB
-    Used RAM: {used_ram} GB
-    Free RAM: {free_ram} GB
-    Precent Used: {percent_used_ram}%\n 
-Disk: 
-    Total Disk: {total_disk} GB
-    Free Disk: {free_disk} GB
-    Used Disk: {used_disk} GB
-    Percent Used: {percent_used_disk}%\n
-CPU:
-    Percent Used: {percent_used_cpu}%\n\n"""
-    if tcp_ports_info != {}:
-        ports_output = ""
-        for port, status in tcp_ports_info.items():
-            ports_output += f"    {port}: {status}\n"
-        check_output += f"TCP PORTS:\n{ports_output}"
-    
-    print(check_output)
-    
-    
-def read_json_file(file_path):
-    json_data = load(file_path)
-    check_id, check_date, ram_usage, disk_usage, cpu_usage = json_data["id"], json_data["date"], list(json_data["ram"].values()), list(json_data["disk"].values()), json_data["cpu"]["percent_used"]
-    tcp_ports_info = {}
-    if "tcp_ports" in json_data:
-        tcp_ports_info = json_data["tcp_ports"]
-        
-    return check_id, check_date, ram_usage, disk_usage, cpu_usage, tcp_ports_info
-
-
-def get_directory_files(directory):
-    return [f for f in listdir(directory) if isfile(directory+f)]
     
 
 def list_checks():
@@ -208,79 +61,6 @@ def get_last_check():
     system_check_output(check_id, check_date, ram_usage, disk_usage, cpu_usage, tcp_ports_info)
     write_log_message(f"monit.py --get-last success")
     exit(0)
-    
-    
-def average_check_output(average_values):
-    check_output = f"""
-RAM: 
-    Total RAM: {average_values["ram"][0]} GB
-    Available RAM: {average_values["ram"][1]} GB
-    Used RAM: {average_values["ram"][2]} GB
-    Free RAM: {average_values["ram"][3]} GB
-    Precent Used: {average_values["ram"][4]}%\n 
-Disk: 
-    Total Disk: {average_values["disk"][0]} GB
-    Free Disk: {average_values["disk"][1]} GB
-    Used Disk: {average_values["disk"][2]} GB
-    Percent Used: {average_values["disk"][3]}%\n
-CPU:
-    Percent Used: {average_values["cpu"]}%"""
-    print(check_output)
-    
-    
-def compute_average(values):
-    return float(sum(values)) / len(values)
-    
-    
-def compute_values_average(last_hours_check_values):
-    average_values = { "ram": [], "disk": [], "cpu": 0 }
-    for ram_info in last_hours_check_values["ram"].values():
-        average_values["ram"].append(compute_average(ram_info))
-    for disk_info in last_hours_check_values["disk"].values():
-        average_values["disk"].append(compute_average(disk_info))
-    average_values["cpu"] = compute_average(last_hours_check_values["cpu"])
-    return average_values
-
-
-def get_files_values(files):
-    check_values = { "ram":{"total_ram":[],"available_ram":[],"used_ram":[],"free_ram":[],"percent_used":[]},"disk":{"total_disk":[],"free_disk":[],"used_disk":[],"percent_used":[]},"cpu":[] }
-    for file in files:
-        json_file_values = read_json_file(open(f"/var/monit/{file}"))
-        ram_usage, disk_usage, cpu_usage = json_file_values[2], json_file_values[3], json_file_values[4]
-        check_values["ram"]["total_ram"].append(ram_usage[0])
-        check_values["ram"]["available_ram"].append(ram_usage[1])
-        check_values["ram"]["used_ram"].append(ram_usage[2])
-        check_values["ram"]["free_ram"].append(ram_usage[3])
-        check_values["ram"]["percent_used"].append(ram_usage[4])
-        check_values["disk"]["total_disk"].append(disk_usage[0])
-        check_values["disk"]["free_disk"].append(disk_usage[1])
-        check_values["disk"]["used_disk"].append(disk_usage[2])
-        check_values["disk"]["percent_used"].append(disk_usage[3])
-        check_values["cpu"].append(cpu_usage)
-    return check_values
-        
-
-def get_files_from_last_hours(hours):
-    check_directory = "/var/monit/"
-    check_files = get_directory_files(check_directory)
-    if len(check_files) == 0:
-        print("No check file found, please make ")
-        exit(1)
-    check_files.reverse()
-    
-    last_datetime = datetime.now() - timedelta(hours=hours)
-    last_datetime = last_datetime.strftime('%Y%m%d%H%M%S')
-    
-    check_files_from_last_hours = []
-    for file_name in check_files:
-        file_date = file_name[6:20]
-        if int(file_date) >= int(last_datetime):
-            check_files_from_last_hours.append(file_name)
-            
-    if len(check_files_from_last_hours) == 0:
-        print(f"No check file found in the last {hours} hours")
-        exit(1)
-    return check_files_from_last_hours
     
 
 def get_average_check_values(hours):

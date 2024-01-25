@@ -6,7 +6,7 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-pip install psutil, flask
+pip install psutil flask
 
 USERNAME="monit-man"
 

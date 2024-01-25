@@ -48,7 +48,7 @@ Il se situe dans `/etc/monit/monit.conf`
 Pour ajouter des ports à surveiller,  : 
 
 ```json
-# port séparé par une virgule
+# chaque port doit être séparé par une virgule
 {
     "tcp_ports": [80,443,22,8888]
 }

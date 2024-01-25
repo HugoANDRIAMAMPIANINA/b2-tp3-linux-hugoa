@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 from flask import Flask, abort, jsonify
 from json import load
-
-from os.path import isfile
-from os import listdir
+from file_handler import get_directory_files
 
 app = Flask(__name__)
 app.secret_key = 'my super secret key'.encode('utf8')
@@ -22,10 +20,6 @@ def get_report(report_id=None):
         if report_json["id"] == report_id:
             return jsonify(report_json)
     abort(404)
-
-
-def get_directory_files(directory):
-    return [f for f in listdir(directory) if isfile(directory+f)]
     
 
 if __name__ == '__main__':
