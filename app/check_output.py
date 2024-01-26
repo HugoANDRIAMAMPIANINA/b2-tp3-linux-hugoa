@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 
 def system_check_output(check_id, check_date, ram_usage, disk_usage, cpu_usage, tcp_ports_info):
     total_ram, available_ram, used_ram, free_ram, percent_used_ram = ram_usage

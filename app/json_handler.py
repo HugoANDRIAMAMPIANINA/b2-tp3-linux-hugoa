@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from json import load
 
 
@@ -9,6 +11,7 @@ def read_json_file(file_path):
         tcp_ports_info = json_data["tcp_ports"]
         
     return check_id, check_date, ram_usage, disk_usage, cpu_usage, tcp_ports_info
+
 
 def create_report_file_json(check_id, check_date, ram_usage, disk_usage, cpu_usage, tcp_ports_info):
     total_ram, available_ram, used_ram, free_ram, percent_used_ram = ram_usage

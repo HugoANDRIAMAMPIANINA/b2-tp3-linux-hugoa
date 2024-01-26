@@ -1,4 +1,7 @@
+#!/usr/bin/env python
+
 from argparse import ArgumentParser
+
 
 def argument_management(parser):
     g = parser.add_mutually_exclusive_group()

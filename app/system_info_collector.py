@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import socket
 from psutil import virtual_memory, disk_usage, cpu_percent
 from contextlib import closing
@@ -15,6 +17,7 @@ def get_ram_informations():
     
     return total_ram, available_ram, used_ram, free_ram, percent_used
 
+
 def get_disk_usage():
     disk = disk_usage('/')
     
@@ -25,8 +28,10 @@ def get_disk_usage():
     
     return total_disk, free_disk, used_disk, percent_used
 
+
 def get_cpu_usage():
     return cpu_percent()
+
 
 def is_port_open(port):
     with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
@@ -38,6 +43,7 @@ def is_port_open(port):
         else:
             sock.close()
             return False
+
 
 def check_tcp_ports():
     with open('/etc/monit/monit.conf') as conf_file:

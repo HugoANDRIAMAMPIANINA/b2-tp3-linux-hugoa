@@ -8,7 +8,6 @@ from average import compute_values_average
 from json_handler import create_report_file_json, read_json_file
 from check_output import system_check_output, average_check_output
 from file_info_collector import get_files_values, get_files_from_last_hours
-
 from argparse import ArgumentParser
 from uuid import uuid1
 from datetime import datetime
@@ -91,6 +90,7 @@ def main():
     if args.check is False and args.list is False and args.get_last is False and args.get_avg is None:
         parser.print_help()
         exit(1)
+
 
 if __name__ == "__main__":
     main()

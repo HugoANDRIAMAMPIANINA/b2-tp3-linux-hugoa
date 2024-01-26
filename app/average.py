@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 def compute_average(values):
     return float(sum(values)) / len(values)
     

@@ -1,6 +1,9 @@
+#!/usr/bin/env python
+
 from json_handler import read_json_file
 from datetime import datetime, timedelta
 from file_handler import get_directory_files
+
 
 def get_files_values(files):
     check_values = { "ram":{"total_ram":[],"available_ram":[],"used_ram":[],"free_ram":[],"percent_used":[]},"disk":{"total_disk":[],"free_disk":[],"used_disk":[],"percent_used":[]},"cpu":[] }

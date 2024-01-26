@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from os.path import isfile, exists
 from os import makedirs, listdir
 from json import dump
@@ -15,6 +17,7 @@ def create_file(file_directory, file_name, json_data):
     
     with open(f"{file_directory}{file_name}", "w") as conf_file:
         dump(json_data, conf_file, separators=(',', ':'))
+        
         
 def get_directory_files(directory):
     return [f for f in listdir(directory) if isfile(directory+f)]
