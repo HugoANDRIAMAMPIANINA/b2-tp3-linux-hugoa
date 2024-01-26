@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from json_handler import read_json_file
 from datetime import datetime, timedelta
 from file_handler import get_directory_files
@@ -21,7 +19,7 @@ def get_files_values(files):
         check_values["disk"]["percent_used"].append(disk_usage[3])
         check_values["cpu"].append(cpu_usage)
     return check_values
-        
+
 
 def get_files_from_last_hours(hours):
     check_directory = "/var/monit/"
@@ -30,16 +28,16 @@ def get_files_from_last_hours(hours):
         print("No check file found, please make ")
         exit(1)
     check_files.reverse()
-    
+
     last_datetime = datetime.now() - timedelta(hours=hours)
     last_datetime = last_datetime.strftime('%Y%m%d%H%M%S')
-    
+
     check_files_from_last_hours = []
     for file_name in check_files:
         file_date = file_name[6:20]
         if int(file_date) >= int(last_datetime):
             check_files_from_last_hours.append(file_name)
-            
+
     if len(check_files_from_last_hours) == 0:
         print(f"No check file found in the last {hours} hours")
         exit(1)

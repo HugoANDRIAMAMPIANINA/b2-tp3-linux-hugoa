@@ -1,9 +1,7 @@
-#!/usr/bin/env python
-
 import socket
-from psutil import virtual_memory, disk_usage, cpu_percent
 from contextlib import closing
 from json import load
+from psutil import virtual_memory, disk_usage, cpu_percent
 
 
 def get_ram_informations():
@@ -37,12 +35,10 @@ def is_port_open(port):
     with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
         socket.setdefaulttimeout(2.0)
         result = sock.connect_ex(('127.0.0.1', port))
+        sock.close()
         if result == 0:
-            sock.close()
             return True
-        else:
-            sock.close()
-            return False
+        return False
 
 
 def check_tcp_ports():
