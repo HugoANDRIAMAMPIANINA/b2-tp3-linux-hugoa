@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from sys import exit as sys
-from monit.json_handler import read_json_file
-from monit.file_handler import get_directory_files
+from json_handler import read_json_file
+from file_handler import get_directory_files
 
 
 def get_files_values(files):

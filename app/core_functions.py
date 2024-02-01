@@ -1,18 +1,18 @@
 from uuid import uuid1
 from datetime import datetime
-from sys import exit as sys
-from monit.logs import write_log_message
-from monit.file_handler import create_file, get_directory_files
-from monit.system_info_collector import (
+import sys
+from logs import write_log_message
+from file_handler import create_file, get_directory_files
+from system_info_collector import (
     get_ram_informations,
     get_cpu_usage,
     get_disk_usage,
     check_tcp_ports,
 )
-from monit.average import calcultate_averages
-from monit.json_handler import create_report_file_json, read_json_file
-from monit.check_output import system_check_output, average_check_output
-from monit.file_info_collector import get_files_values, get_files_from_last_hours
+from average import calcultate_averages
+from json_handler import create_report_file_json, read_json_file
+from check_output import system_check_output, average_check_output
+from file_info_collector import get_files_values, get_files_from_last_hours
 
 
 def system_check():

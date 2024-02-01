@@ -33,10 +33,18 @@ cp conf/monit.conf /etc/monit/monit.conf
 chown "$USERNAME:$USERNAME" /etc/monit/monit.conf
 chmod 600 /etc/monit/monit.conf
 
-mkdir /usr/share/monit
-cp -r app/ /usr/share/monit/
+cp -r app/* /usr/share/monit/
 chown "$USERNAME:$USERNAME" /usr/share/monit/
-chmod -R 700 /usr/share/monit/
+chmod -R 600 /usr/share/monit/
+chmod 700 /usr/share/monit/
+
+cp app/monit.py /usr/bin/monit.py
+chown "$USERNAME:$USERNAME" /usr/bin/monit.py
+chmod 700 /usr/bin/monit.py
+
+cp app/monit-api.py /usr/bin/monit-api.py
+chown "$USERNAME:$USERNAME" /usr/bin/monit-api.py
+chmod 700 /usr/bin/monit-api.py
 
 cp service/monit.service /etc/systemd/system/monit.service
 cp service/monit.timer /etc/systemd/system/monit.timer

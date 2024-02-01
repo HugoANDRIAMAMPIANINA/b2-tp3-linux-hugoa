@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 from argparse import ArgumentParser
-from sys import exit as sys
-from monit.arguments import argument_management
-from monit.core_functions import system_check, list_checks, get_last_check, get_average_check_values
-from monit.file_handler import create_file, file_exists
+import sys
+from arguments import argument_management
+from core_functions import system_check, list_checks, get_last_check, get_average_check_values
+from file_handler import create_file, file_exists
+
 
 def main():
     parser = ArgumentParser()
@@ -32,4 +33,5 @@ def main():
 
 
 if __name__ == "__main__":
+    sys.path.append("/usr/share/monit/")
     main()
