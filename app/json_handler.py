@@ -2,6 +2,13 @@ from json import load
 
 
 def read_json_file(file_path):
+    """Convert json file's content to a dict and return each values.
+
+    Args:
+        file_path: the path of the file that.
+    Returns:
+        the average value of each RAM, disk and CPU informations.
+    """
     json_data = load(file_path)
     check_id, check_date, ram_usage, disk_usage, cpu_usage = (
         json_data["id"],

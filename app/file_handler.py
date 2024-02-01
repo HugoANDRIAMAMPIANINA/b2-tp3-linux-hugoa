@@ -13,7 +13,7 @@ def create_file(file_directory, file_name, json_data):
     if not exists(file_directory):
         makedirs(file_directory)
 
-    with open(f"{file_directory}{file_name}", "w") as conf_file:
+    with open(f"{file_directory}{file_name}", "w", encoding='utf-8') as conf_file:
         dump(json_data, conf_file, separators=(",", ":"))
 
 

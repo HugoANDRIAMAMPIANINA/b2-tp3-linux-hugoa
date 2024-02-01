@@ -1,4 +1,10 @@
 def system_check_output(check_id, check_date, ram_usage, disk_usage, cpu_usage, tcp_ports_info):
+    """Output in console/terminal the check and its informations
+    Args:
+        all check informations.
+    Returns:
+        nothing, it just prints
+    """
     total_ram, available_ram, used_ram, free_ram, percent_used_ram = ram_usage
     total_disk, free_disk, used_disk, percent_used_disk = disk_usage
     percent_used_cpu = cpu_usage
@@ -28,6 +34,12 @@ CPU:
 
 
 def average_check_output(average_values):
+    """Output in console/terminal the last checks average values calculated
+    Args:
+        average_values: dict containing RAM, disk and CPU average values
+    Returns:
+        nothing, it just prints
+    """
     check_output = f"""
 RAM:
     Total RAM: {average_values["ram"][0]} GB

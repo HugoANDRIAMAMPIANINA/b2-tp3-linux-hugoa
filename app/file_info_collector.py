@@ -1,12 +1,25 @@
-from json_handler import read_json_file
 from datetime import datetime, timedelta
+from sys import exit as sys
+from json_handler import read_json_file
 from file_handler import get_directory_files
 
 
 def get_files_values(files):
-    check_values = { "ram":{"total_ram":[],"available_ram":[],"used_ram":[],"free_ram":[],"percent_used":[]},"disk":{"total_disk":[],"free_disk":[],"used_disk":[],"percent_used":[]},"cpu":[] }
+    """
+    Get all files json_values and return a dict containing RAM, disk and CPU informations from json
+    
+    Args:
+        files: list of check file name
+    Returns:
+        check_values: dict containing RAM, disk and CPU informations
+    """
+    check_values = {
+        "ram":{"total_ram":[],"available_ram":[],"used_ram":[],"free_ram":[],"percent_used":[]},
+        "disk":{"total_disk":[],"free_disk":[],"used_disk":[],"percent_used":[]},"cpu":[] 
+    }
     for file in files:
-        json_file_values = read_json_file(open(f"/var/monit/{file}"))
+        with open(file, "r", encoding="utf8") as json_file:
+            json_file_values = read_json_file(json_file)
         ram_usage, disk_usage, cpu_usage = json_file_values[2], json_file_values[3], json_file_values[4]
         check_values["ram"]["total_ram"].append(ram_usage[0])
         check_values["ram"]["available_ram"].append(ram_usage[1])
@@ -26,7 +39,7 @@ def get_files_from_last_hours(hours):
     check_files = get_directory_files(check_directory)
     if len(check_files) == 0:
         print("No check file found, please make ")
-        exit(1)
+        sys.exit(1)
     check_files.reverse()
 
     last_datetime = datetime.now() - timedelta(hours=hours)
@@ -40,5 +53,5 @@ def get_files_from_last_hours(hours):
 
     if len(check_files_from_last_hours) == 0:
         print(f"No check file found in the last {hours} hours")
-        exit(1)
+        sys.exit(1)
     return check_files_from_last_hours
