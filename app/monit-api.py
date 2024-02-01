@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from json import load
-from flask import Flask, abort, jsonify
+from flask import Flask, abort, jsonify, Response
 import sys
 sys.path.append("/usr/share/monit/")
 from file_handler import get_directory_files
@@ -16,7 +16,8 @@ def get_reports():
     check_files = get_directory_files(check_directory)
     if not check_files:
         print("No check file found")
-        abort(404)
+        abort(Response('Hello World'))
+        
     reports = {}
     for file_name in check_files:
         with open(check_directory + file_name, 'r', encoding='utf-8') as report:
