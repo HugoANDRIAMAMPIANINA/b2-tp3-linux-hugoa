@@ -19,7 +19,7 @@ def get_files_values(files):
     }
     for file in files:
         with open(file, "r", encoding="utf8") as json_file:
-            json_file_values = read_json_file(json_file)
+            json_file_values = read_json_file(f"/var/monit/{json_file}")
         ram_usage, disk_usage, cpu_usage = json_file_values[2], json_file_values[3], json_file_values[4]
         check_values["ram"]["total_ram"].append(ram_usage[0])
         check_values["ram"]["available_ram"].append(ram_usage[1])
