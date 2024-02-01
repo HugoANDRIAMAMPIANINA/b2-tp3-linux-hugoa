@@ -10,6 +10,22 @@ app = Flask(__name__)
 app.secret_key = "my super secret key".encode("utf8")
 
 
+@app.route("/reports", methods=["GET"])
+def get_report(report_id=None):
+    check_directory = "/var/monit/"
+    check_files = get_directory_files(check_directory)
+    if not check_files:
+        print("No check file found")
+        abort(404)
+    reports = {}
+    for file_name in check_files:
+        with open(check_directory + file_name, 'r', encoding='utf-8') as report:
+            report_json = load(report)
+        reports[report_json["id"]] = report_json
+    
+    return jsonify(reports)
+
+
 @app.route("/reports/<report_id>", methods=["GET"])
 def get_report(report_id=None):
     check_directory = "/var/monit/"
