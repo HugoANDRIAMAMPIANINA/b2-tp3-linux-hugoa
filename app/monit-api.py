@@ -11,7 +11,7 @@ app.secret_key = "my super secret key".encode("utf8")
 
 
 @app.route("/reports", methods=["GET"])
-def get_report(report_id=None):
+def get_reports():
     check_directory = "/var/monit/"
     check_files = get_directory_files(check_directory)
     if not check_files:
