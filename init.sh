@@ -33,6 +33,7 @@ cp conf/monit.conf /etc/monit/monit.conf
 chown "$USERNAME:$USERNAME" /etc/monit/monit.conf
 chmod 600 /etc/monit/monit.conf
 
+mkdir /usr/share/monit/
 cp -r app/* /usr/share/monit/
 chown "$USERNAME:$USERNAME" /usr/share/monit/
 chmod -R 600 /usr/share/monit/
