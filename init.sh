@@ -34,7 +34,7 @@ chown "$USERNAME:$USERNAME" /etc/monit/monit.conf
 chmod 600 /etc/monit/monit.conf
 
 mkdir /usr/share/monit
-cp app/ /usr/share/monit/
+cp -r app/ /usr/share/monit/
 chown "$USERNAME:$USERNAME" /usr/share/monit/
 chmod -R 700 /usr/share/monit/
 
