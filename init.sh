@@ -61,6 +61,7 @@ systemctl enable monit-api.service
 echo "User $USERNAME created with folders and permissions"
 
 echo "Script execution complete."
+echo "Config file here : /etc/monit/monit.conf"
 echo "To access the API at 127.0.0.1:8000/reports/<report_id>, don't forget to open port 8000/tcp in your firewall !"
 echo "You can start using the monit.py monitoring tool"
 

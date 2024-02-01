@@ -11,8 +11,15 @@ cd b2-tp3-linux-hugoa/
 chmod +x init.sh
 sudo ./init.sh
 ```
+**IMPORTANT** Pour joindre l'API, il faut ouvrir le port 8000 de votre
+```
+sudo firewall-cmd --add-port=8000/tcp --permanent
+sudo firewall-cmd --reload
+```
 
 ## Usage
+
+### ***monit.py***
 
 - Lancer un check des ressources du système dont la RAM, le disque, le CPU et l'état des ports TCP précisés dans le fichier de conf `monit.conf` et afficher ces valeurs dans le terminal. Stock les valeurs dans un fichier `json` dans `/var/monit` :
     ```bash
@@ -29,6 +36,28 @@ sudo ./init.sh
 - Afficher les valeurs moyennes des X dernières heures selon les rapports :
     ```bash
     sudo -u monit-man monit.py --get-avg X
+    ```
+
+### ***monit-api.py***
+
+Accès à l'API : `<ip-machine>:8000`
+
+- Récupérer tous les rapports au format json :
+    ```bash
+    # sur la machine
+    curl 127.0.0.1:8000/reports
+
+    # sur une autre machine
+    curl <ip-machine>:8000/reports
+    ```
+
+- Récupérer un rapport via son id au format json :
+    ```bash
+    # sur la machine
+    curl 127.0.0.1:8000/reports/<id-rapport>
+
+    # sur une autre machine
+    curl <ip-machine>:8000/reports/<id-rapport>
     ```
 
 ## Configuration
