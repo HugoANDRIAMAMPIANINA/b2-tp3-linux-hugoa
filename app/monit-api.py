@@ -2,6 +2,7 @@
 from json import load
 from flask import Flask, abort, jsonify
 import sys
+sys.path.append("/usr/share/monit/")
 from file_handler import get_directory_files
 
 
@@ -25,5 +26,4 @@ def get_report(report_id=None):
 
 
 if __name__ == "__main__":
-    sys.path.append("/usr/share/monit/")
     app.run(host="0.0.0.0", port=8000, debug=True)

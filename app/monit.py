@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from argparse import ArgumentParser
 import sys
+sys.path.append("/usr/share/monit/")
 from arguments import argument_management
 from core_functions import system_check, list_checks, get_last_check, get_average_check_values
 from file_handler import create_file, file_exists
@@ -33,5 +34,4 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.path.append("/usr/share/monit/")
     main()
