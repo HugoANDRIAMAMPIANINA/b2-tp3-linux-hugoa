@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from json import load
 from flask import Flask, abort, jsonify
-from file_handler import get_directory_files
+from monit.file_handler import get_directory_files
 
 
 app = Flask(__name__)
