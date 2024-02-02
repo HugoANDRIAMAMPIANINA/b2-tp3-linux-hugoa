@@ -1,6 +1,6 @@
 # TP3 : Développement d'un outil pour les admins
 
-# Outil de monitoring
+# Outil de monitoring pour serveur Rocky Linux 9
 
 ## Installation
 
